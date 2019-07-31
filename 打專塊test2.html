@@ -1,0 +1,179 @@
+<h1>打專塊</h1>
+<canvas id='canvas' width='753' height='500' style="border: 1px solid black"></canvas>
+<script>
+    let ctx = canvas.getContext('2d'); // 渲染
+    let bg = new Image();
+    bg.src = 'BG1.jpg';
+    //==============================ball
+    let ballX, ballY;
+    let dx = 8,
+        dy = 8;
+    //==============================版子
+    let board;
+    let boardwidth = 150;
+    let boardheight = 15;
+    let boardX = (canvas.width - boardwidth) / 2;
+    let boardRight = false;
+    let boardLeft = false;
+    document.addEventListener("keydown", keyDownHandler, false);
+    document.addEventListener("keyup", keyUpHandler, false);
+    //==============================================
+
+    let brickRow = 4;
+    let brickColumn = 6;
+    let brickPadding = 15;
+    let brickOffsetTop = 20;
+    let brickOffsetlost = 0;
+
+    let bricks = [];
+    let brickX = [];
+    let brickY = [];
+
+    let brickobj = {
+        width: 100,
+        height: 40,
+        x: 0,
+        y: 0,
+        status: 1
+    }
+
+    function drawBricks() {
+        for (let i = 0; i < brickColumn; i++) {
+            for (let j = 0; j < brickRow; j++) {
+                let brick = clone(brickobj);
+                brick.brickX = (i * (brickobj.width + brickPadding) + brickOffsetlost)
+                brick.brickY = (j * (brickobj.height + brickPadding) + brickOffsetTop)
+
+                ctx.beginPath();
+                ctx.rect(brickobj.brickX, brickobj.brickY, brickobj.width, brickobj.height);
+                bricks.push(brick);
+                console.log(brick.brickX);
+                ctx.fillStyle = "#0095DD";
+                ctx.fill();
+                ctx.closePath();
+
+
+            }
+
+        }
+
+    }
+
+
+
+
+    //滑鼠按下有球
+    canvas.onmousedown = function (event) {
+        ballX = event.offsetX;
+        ballY = event.offsetY;
+    }
+
+
+
+    function keyDownHandler(event) {
+        if (event.key == "Right" || event.key == "ArrowRight") {
+            boardRight = true;
+        } else if (event.key == "Left" || event.key == "ArrowLeft") {
+            boardLeft = true;
+        };
+    };
+
+    function keyUpHandler(event) {
+        if (event.key == "Right" || event.key == "ArrowRight") {
+            boardRight = false;
+        } else if (event.key == "Left" || event.key == "ArrowLeft") {
+            boardLeft = false;
+        };
+    };
+
+    function drawBall() {
+        ctx.beginPath();
+        ctx.arc(ballX, ballY, 10, 0, 2 * Math.PI);
+        ctx.strokeStyle = "green"
+        ctx.fillStyle = "green";
+        ctx.fill();
+        ctx.closePath();
+
+    }
+
+    function drawBoard() {
+        ctx.beginPath();
+        ctx.fillRect(boardX, canvas.height - (boardheight + 30), boardwidth, boardheight);
+        ctx.fillStyle = "orange"
+        ctx.stroke();
+        ctx.closePath();
+    }
+
+
+    function userSee() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        drawBall();
+        drawBoard();
+        drawBricks();
+
+
+    }
+
+    setInterval(userSee, 17);
+
+    function clone(source) {
+        //if (null == source || "object" != typeof source) return source;
+        if (source == null || typeof (source) != 'object') return null;
+
+        let target = new Object();
+        for (let attr in source) {
+            if (typeof (source[attr]) != 'object') {
+                target[attr] = source[attr];
+            } else {
+                target[attr] = clone(source[attr]);
+            }
+
+        }
+
+        return target;
+
+    }
+
+    function AllMove() {
+
+        if (boardRight == true && boardX + boardwidth < canvas.width) {
+            boardX += 8;
+        };
+        if (boardLeft == true && boardX > 0) {
+            boardX -= 8;
+        };
+
+
+
+
+        if (ballX < 0 || ballX + 5 > canvas.width) {
+            dx *= -1;
+        }
+        if (ballY < 0 || ballY + 5 > canvas.height) {
+            dy *= -1;
+        } else if (ballY + 25 > canvas.height - boardheight) {
+            if (ballX + 20 > boardX && ballX + 5 < boardX + boardwidth) {
+                dy *= -1;
+            } else if (ballY > canvas.height) {
+                alert("遊戲結束");
+                document.location.reload();
+                clearInterval(DrawIng);
+            }
+        }
+
+
+
+        ballX += dx;
+        ballY += dy;
+
+
+    };
+
+
+
+
+
+
+    let DrawIng = setInterval(AllMove, 17);
+
+</script>
